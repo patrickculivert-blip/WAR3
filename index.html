@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WAR3STUDIO - Portal Resmi</title>
+<style>
+  :root {
+      --bg-body: #0d0d0d; --bg-card: #171717; --text-main: #f5f5f5; --text-dim: #999999;
+      --accent-orange: #f97316; --online: #22c55e; --offline: #ef4444; --blue-alt: #06b6d4;
+      --border-color: #333333; --shadow-outer: 6px 6px 12px rgba(0,0,0,0.8);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+  
+  body { 
+      background-color: var(--bg-body); 
+      color: var(--text-main); 
+      transition: 0.3s; 
+      overflow-x: hidden; 
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+
+  /* HEADER INFO */
+  .header-logo { text-align: center; margin-bottom: 35px; }
+  .header-logo h1 { font-size: 2.2em; letter-spacing: 2px; font-weight: 900; }
+
+  /* NAVIGATION GRID */
+  .tab-nav-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px; transition: 0.3s; }
+  .tab-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-dim); padding: 12px 5px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.2s; text-align: center; white-space: nowrap; }
+  .tab-btn.active { background: var(--accent-orange); color: #fff; border-color: var(--accent-orange); }
+
+  .page { display: none; animation: fadeIn 0.4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card { background: var(--bg-card); border: 1px solid var(--border-color); border-bottom: 4px solid #000; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow-outer); transition: 0.3s; }
+
+  /* ACCORDION */
+  .acc-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .acc-header { padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); transition: 0.3s; }
+  .acc-header:hover { background: rgba(255,255,255,0.05); }
+  .acc-content { display: none; padding: 20px; border-top: 1px solid var(--border-color); background: var(--bg-card); }
+  .version-tag { background: var(--accent-orange); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+  
+  .change-list { list-style: none; padding-left: 5px; margin-top: 8px; font-size: 0.9em; color: var(--text-dim); line-height: 1.6; }
+  .change-list li { margin-bottom: 8px; position: relative; padding-left: 15px; }
+  .change-list li::before { content: "•"; position: absolute; left: 0; color: var(--accent-orange); }
+
+  .btn-action { width: 100%; padding: 14px; background: var(--accent-orange); border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; border-bottom: 3px solid #b45309; transition: 0.2s; }
+  .btn-action:active { transform: translateY(2px); border-bottom: 1px solid #b45309; }
+  .btn-secondary { background: #444; border-bottom: 3px solid #222; }
+  .btn-green { background: #22c55e; border-bottom: 3px solid #166534; }
+  
+  /* UI MODALS */
+  .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 25px; overflow-y: auto;}
+  .login-box { background: var(--bg-card); padding: 25px; border-radius: 12px; width: 100%; max-width: 350px; border: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: 0px 10px 30px rgba(0,0,0,0.5); margin: auto; text-align: center;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header-logo">
+    <h1 id="studioNameTitle"><span><span style="color:#FFF">WAR</span><span style="color:#FA0">3STUDIO</span></span></h1>
+    <p style="color: var(--text-dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px;">Minecraft Bedrock Development</p>
+  </div>
+
+  <nav class="tab-nav-container" id="navPanel">
+    <button class="tab-btn active" id="btn-changelog" onclick="showPage('changelog')">Changelog</button>
+    <button class="tab-btn" id="btn-products" onclick="showPage('products')">Produk</button>
+    <button class="tab-btn" id="btn-community" onclick="showPage('community')">Community</button>
+  </nav>
+
+  <div id="changelog" class="page active"></div>
+  
+  <div id="products" class="page">
+     <h2 style="margin-bottom:20px; color:var(--accent-orange); font-size: 1.2em;">Katalog Produk Premium</h2>
+     <div id="product-list-container"></div>
+  </div>
+
+  <div id="product-detail" class="page">
+     <button class="btn-action btn-secondary" style="margin-bottom: 20px; width: auto; padding: 10px 20px;" onclick="showPage('products')"> Kembali ke Katalog</button>
+     <div id="pd-content"></div>
+  </div>
+
+  <div id="community" class="page">
+    <div class="card" style="padding: 15px; text-align: center;">
+      <h3 style="color:var(--accent-orange); margin-bottom: 5px; font-size: 1.3em;">WAR3STUDIO Discord</h3>
+      <p style="font-size: 0.9em; color: var(--text-dim); margin-bottom: 15px; font-weight: bold;">
+        👤 <span id="discord-count" style="color: white;">Memuat...</span> Anggota Aktif
+      </p>
+      <button class="btn-action" style="background:#5865F2; border-bottom-color:#4752C4;" onclick="window.open('https://discord.gg/EHun8bpSq', '_blank')">JOIN DISCORD SERVER</button>
+    </div>
+    <div class="card" style="padding: 15px; text-align: center;">
+      <h3 style="color:#22c55e; margin-bottom: 5px; font-size: 1.3em;">WAR3STUDIO WhatsApp</h3>
+      <p style="font-size: 0.9em; color: var(--text-dim); margin-bottom: 15px; font-weight: bold;">
+        💬 <span style="color: white;">∞/span>
+      </p>
+      <button class="btn-action btn-green" onclick="window.open('https://chat.whatsapp.com/DSUBH4DqGXlFvXmkkI08e9', '_blank')">JOIN WHATSAPP GROUP</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="customAlertOverlay">
+  <div class="login-box">
+    <p id="customAlertMsg" style="margin-bottom: 20px; font-size: 0.95em; line-height: 1.5; color: white; font-weight: bold;"></p>
+    <button class="btn-action" onclick="document.getElementById('customAlertOverlay').style.display='none'">OKE</button>
+  </div>
+</div>
+
+<script>
+  // Fungsi Pengubah Warna Teks Minecraft
+  function parseMCColors(text) {
+    if (!text) return text;
+    const colors = { '0': '#000', '1': '#00A', '2': '#0A0', '3': '#0AA', '4': '#A00', '5': '#A0A', '6': '#FA0', '7': '#AAA', '8': '#555', '9': '#55F', 'a': '#5F5', 'b': '#5FF', 'c': '#F55', 'd': '#F5F', 'e': '#FF5', 'f': '#FFF' };
+    let parsed = text.replace(/&([0-9a-f])/ig, (m, p1) => `</span><span style="color:${colors[p1.toLowerCase()]}">`);
+    parsed = parsed.replace(/&l/ig, '</span><span style="font-weight:bold;">');
+    parsed = parsed.replace(/&o/ig, '</span><span style="font-style:italic;">');
+    parsed = parsed.replace(/&r/ig, '</span><span style="color:inherit; font-weight:normal; font-style:normal;">');
+    return `<span>${parsed}</span>`.replace(/<span><\/span>/g, '');
+  }
+  
+  function convertToHTML(text) {
+      if (!text) return "";
+      let lines = text.split('\n'); let html = ""; let inList = false;
+      for (let i = 0; i < lines.length; i++) {
+          let line = lines[i].trim();
+          if (line.startsWith('- ') || line.startsWith('• ') || line.startsWith('* ')) {
+              if (!inList) { html += '<ul class="change-list">'; inList = true; }
+              html += `<li>${parseMCColors(line.substring(2))}</li>`;
+          } else {
+              if (inList) { html += '</ul>'; inList = false; }
+              if (line === "") { if (!html.endsWith('<br>')) html += "<br>"; } 
+              else { html += `<span style="display:block; margin-top:5px; margin-bottom:5px; font-weight:bold;">${parseMCColors(line)}</span>`; }
+          }
+      }
+      if (inList) html += '</ul>'; return html;
+  }
+
+  // --- DATABASE DATA STATIS ---
+  const dbData = {
+      changelogs: [
+          {
+              id: 4, version: "&ev2.0.2", dateStr: "Mei 2026",
+              rawContent: "&bIMPROVED\n- Menambahkan Particle shop, setting particle shop & particle storage pada member menu\n- Menambahkan sakelar Enabled RTP pada rtp setting\n&cREMOVED\n- Menghapus Beberapa file tidak terpakai agar ukuran file tidak bengkak\n- Menghapus system schedule pada broadcast\n- Menghapus system auto lock pada item lock manager\n- Menghapus fungsi mute setelah banned\n- Menghapus json ui baru dan menggantikannya dengan textures ui\n- Menghapus seluruh fungsi dimensi rtp\n&aOPTIMALIZER\n- Menaikan responsif ui\n- Menaikan interval Leaderboard dari 100 ke 300\n- Menaikan interval Countdown dari 60 ke 100\n- Menaikan interval Nametag dari 60 ke 100\n- Menaikan interval Scoreboard dari 60 ke 100"
+          },
+          {
+              id: 3, version: "&ev2.0.1", dateStr: "Mei 2026",
+              rawContent: "&6RESTORED\n- Mengembalikan custom shop dengan system baru, untuk mengedit custom shop sekarang menggunakan item ★Custom Shop★\n&bIMPROVED\n- Menambahkan toggle dimensi ke system RTP (Random Teleport)\n- Toggle on/off untuk command, Owner menu > advance config > Command setting\n- Menambahkan fitur Banned word atau filter teks, Owner menu > Advance config > Ban word & Admin menu > Ban Word\n- Menambahkan animasi hotbar teks pda casino dadu & coin\n- Menambahkan tampilan rank baru\n- Menambahkan dropdown untuk device & dimensi dengan icon agar sesuai\n&cREMOVED\n- Menhapus fungsi cooldown pada random teleport dan menggantikannya dengan 3 toggle dimensi\n- Menmved Menghapus animasi ui casino dice/dadu\n- Menhapus animasi ui casino coin\n- Menghapus tampilan rank lama\n- Menghapus seluruh system dungeom area\n&aFIXED\n- Memperbaiki sytem rtp yang rusak/selalu terjun ke air bukan daratan\n- Memperbaiki fake chat yang beberapa form tidak muncul/tidak sesuai dengan format custom chat\n- Memperbaiki masalah starter kit rank yang tidak tampil di menu"
+          },
+          {
+              id: 2, version: "&ev2.0.0", dateStr: "Mei 2026",
+              rawContent: "&bIMPROVED\n- Menambahkan ±77 3D Model NPC Baru ( Model lama telah dihapus jadi semua system pada model lama sudah tidak bekerja, tata ulang npc )\n- NPC Tipe Battlepass, menu Battlepass pada member menu dan setting battlepass pada owner menu > advance config\n- NPC Tipe XP Shop & Menu setting pada owner menu > NPC Setting\n- Item hapus NPC dalam radius 2 block\n- Menambahkan json ui sebagai ui baru menggantikan dark ui sebelumnya [Beta-UI]\n&cREMOVED\n- Menghapus ±60 model NPC Lama dan menggantikannya dengan yang baru\n- Menghapus beberapa menu tidak penting pada Board set dan hanya menyisakan yang benar benar terpakai oleh owner\n- Menghapus dark ui dari rp dan menggantikannya dengan custom json ui [Beta-UI]\n- Menghapus fitur PVP Sytem\n- Menghapus NPC Custom Quest\n- Menghapus NPC Custom Shop\n- Menghapus Backpack & Marketplace/Player shop dari addon\n&eCHANGED\n- Mengubah cara mengganti model npc menjadi button EDIT pada hotbar, menggunakan via query.variant agar lebih mudah\n- Memisahkan gacha crate menjadi 4 bagian tipe NPC yang berbeda ya itu Basic Crate, Epic Crate, Legendary Crate & Mythical Crate\n- Mengubah cara pet mengikuti pemilik, sekarang pet akan selalu mengarah & mengikuti pemilik saat pemilik bergerak/berjalan\n- Sekarang open menu pet lebih mudah dengan memukul pet/ klik pet\n- Memisahkan Casino dice dan coin flip menjadi 2 tipe NPC yang berbeda\n- Memindahkan slapper NPC Dari type NPC menu keitem Slapper\n&aOPTIMALIZER\n- Up interval Leaderboard 100 tick to 200\n- Up interval Scoreboard 60 tick to 100"
+          }
+      ],
+      products: [
+          { 
+              id: 'p1', 
+              name: "&6WAR3&f Essential", 
+              subtitle: "&aAdd-on Esensial Premium", 
+              price: "Rp 30.000", 
+              desc: "Addon esensial terbaik untuk server roleplay dan survival dengan tingkat optimasi tinggi dan bebas lag. Solusi lengkap untuk pengaturan server.",
+              specs: [
+                  "&eEKONOMI & CURRENCY:&r Dual Currency, Bank, Converter, Shop, Enchant Shop, XP Shop, Repair Shop / Blacksmith, Rank Shop, Kit Shop, Key Shop, Pet Shop",
+                  "&eCASINO & HIBURAN:&r Tebak Angka, Lucky Card, Open Door, Dice (Dadu), Coin Flip, TNT Mines",
+                  "&eGACHA & CRATE:&r Basic, Epic, Legend, Mythical (Reward item, money, command)",
+                  "&eQUEST & PROGRES:&r Quest Sistem (Mining, Combat, Farming), Clan Quest, Battle Pass, Player Jobs, Daily Rewards",
+                  "&eCLAN & RANK:&r Buat & Kelola Clan, Clan Chat, Leaderboard, Custom Rank, Rank Benefits, Subscription, Rank Shop",
+                  "&eTELEPORTASI:&r Warp Admin, Player Warp (PWARP), SetHome, TPA, Random TP (RTP), Slapper NPC Teleport",
+                  "&ePROTEKSI & KEAMANAN:&r Land Claim, Lobby Protection, Ban Item, Item Lock",
+                  "&eMANAJEMEN PEMAIN:&r Ban, Kick, Mute, Player Manager, Player History",
+                  "&eSERVER MANAGEMENT:&r World Control, Gamerule Manager, Broadcast, ClearLag, Feature Control, Remove Entity",
+                  "&eNPC SYSTEM:&r Custom NPC (fnpc), Slapper NPC",
+                  "&eKOSMETIK & TAMPILAN:&r Cosmetic Shop, Pet System (15+ pets), Emote System, Floating Text, Nametag Custom, Scoreboard, Custom Chat Format",
+                  "&eFITUR TAMBAHAN:&r Bounties, Player Report, Server Rating, Redeem Code, BANSOS, Starter Kit, AFK Area, Back to Death, Ore Generator, Size UI, Server Rules, Join Notification, Dungeon System"
+              ]
+          },
+          { 
+              id: 'p2', 
+              name: "&bMap Premium&f Full System", 
+              subtitle: "&eUse Add-on: WAR3 Essential", 
+              price: "Rp 50.000 / $3.99", 
+              desc: "Map premium dengan sistem terlengkap untuk server Anda. <br><br>&e*Khusus pengguna WAR3 Essential premium, potong harga menjadi Rp 20.000!*&r",
+              specs: [
+                  "&bCasino:&r TNT mines, coin flip, card, dice", 
+                  "&dGacha:&r Basic crate, Epic crate, Legend crate, Mythic crate", 
+                  "&eShop:&r Enchant shop, particle shop, kosmetik shop, xp shop, item shop, repair shop/blacksmith, rank shop, key shop, petshop",
+                  "&aMore:&r mining area, fishing area, jobs, clan, bank, quest, bansos, redeem code, server rating, rtp, warp, player warp, sethome, server rules, battlepas, starter kit, daily reward, rank benefit, tpa, bansos, size ui, leaderboard, clear lag"
+              ]
+          }
+      ]
+  };
+
+  function loadLocalData() {
+    document.getElementById('changelog').innerHTML = dbData.changelogs.map(d => `
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAccordion(this)"><span class="version-tag">${parseMCColors(d.version)}</span><span style="font-size:0.8em; color:var(--text-dim)">${d.dateStr}</span></div>
+        <div class="acc-content">${convertToHTML(d.rawContent)}</div>
+      </div>`).join('');
+
+    document.getElementById('product-list-container').innerHTML = dbData.products.map(prod => `
+      <div class="card" style="padding:0; overflow:hidden; border-bottom: 4px solid var(--accent-orange); cursor:pointer; transition: transform 0.2s;" onclick="openProductDetail('${prod.id}')" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div style="padding: 20px;">
+             <h3 style="color:white; margin-bottom:5px; font-size:1.3em;">${parseMCColors(prod.name)}</h3>
+             <p style="font-size:0.85em; color:var(--text-dim);">${parseMCColors(prod.subtitle)}</p>
+             <h4 style="color:var(--online); margin-top:12px; font-size:1.1em;">${parseMCColors(prod.price)}</h4>
+          </div>
+          <div style="background:rgba(255,255,255,0.03); padding:12px 20px; text-align:right; font-size:0.85em; color:var(--accent-orange); font-weight:bold; border-top: 1px solid var(--border-color);">Lihat Detail & Order ➔</div>
+      </div>
+    `).join('');
+  }
+
+  function openProductDetail(pId) {
+    let prod = dbData.products.find(x => x.id === pId);
+    if(!prod) return;
+    
+    let cleanProductName = prod.name.replace(/&[0-9a-fk-or]/ig, '');
+    let waMessage = encodeURIComponent(`Hallo admin, saya mau membeli ${cleanProductName} nihh min.`);
+    let waLink = `https://wa.me/6285768970163?text=${waMessage}`;
+
+    let orderActionHtml = `
+       <div style="background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.2); padding: 20px; border-radius: 10px; text-align: center; margin-top: 35px;">
+           <p style="font-size:0.9em; color:var(--text-dim); margin-bottom:15px; font-weight:bold;">Tertarik dengan produk ini? Pesan sekarang juga!</p>
+           <button class="btn-action btn-green" style="margin-top:0; display:flex; align-items:center; justify-content:center; gap:10px; font-size:1em;" onclick="window.open('${waLink}', '_blank')">
+              <span style="font-size: 1.3em;">💬</span> Order 
+           </button>
+        </div>`;
+
+    let html = `
+       <div class="card" style="padding:0; overflow:hidden; border-bottom: 4px solid var(--accent-orange);">
+          <div style="background: linear-gradient(45deg, #111, #222); padding: 30px 20px; text-align: center; border-bottom: 1px solid var(--border-color);">
+              <h2 style="color:white; font-size:1.8em; margin-bottom: 5px;">${parseMCColors(prod.name)}</h2>
+              <p style="color:var(--accent-orange); font-weight: bold;">${parseMCColors(prod.subtitle)}</p>
+          </div>
+          <div style="padding: 25px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px;">
+                  <span style="color:var(--text-dim); font-size:0.9em;">Harga Produk:</span>
+                  <h3 style="color:var(--online); font-size:1.4em;">${parseMCColors(prod.price)}</h3>
+              </div>
+              <h4 style="margin-bottom:10px; color:white;">Informasi:</h4>
+              <p style="font-size:0.95em; color:var(--text-dim); line-height:1.6; margin-bottom:20px;">${parseMCColors(prod.desc)}</p>
+              
+              <h4 style="margin-bottom:10px; color:white; margin-top: 25px;">Spesifikasi / Fitur Lengkap:</h4>
+              <ul class="change-list" style="margin-bottom:10px;">
+                  ${prod.specs.map(s => `<li>${parseMCColors(s)}</li>`).join('')}
+              </ul>
+              ${orderActionHtml}
+          </div>
+       </div>
+    `;
+    document.getElementById('pd-content').innerHTML = html;
+    showPage('product-detail');
+  }
+
+ 
+  function fetchCommunityData() {
+    const url = `https://discord.com/api/v9/invites/EHun8bpSq?with_counts=true`;
+    fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
+      .then(res => { if (!res.ok) throw new Error('API Response Error'); return res.json(); })
+      .then(data => {
+        if (data && data.approximate_member_count) { document.getElementById('discord-count').innerText = data.approximate_member_count.toLocaleString('id-ID'); } 
+        else { document.getElementById('discord-count').innerText = "Ratusan"; }
+      }).catch(err => { document.getElementById('discord-count').innerText = "Ratusan"; });
+  }
+  
+  function showPage(id) { 
+    document.querySelectorAll('.page, .tab-btn').forEach(el => el.classList.remove('active')); 
+    document.getElementById(id).classList.add('active'); 
+    let btnId = (id === 'product-detail') ? 'btn-products' : 'btn-' + id;
+    let btn = document.getElementById(btnId); if(btn) btn.classList.add('active'); 
+    
+    if(id === 'product-detail') {
+        document.getElementById('navPanel').style.display = 'none';
+    } else {
+        document.getElementById('navPanel').style.display = 'grid';
+    }
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  function toggleAccordion(h) { 
+    const c = h.nextElementSibling; const isOpen = c.style.display === 'block'; 
+    h.closest('.page').querySelectorAll('.acc-content').forEach(el => el.style.display = 'none'); 
+    if (!isOpen) c.style.display = 'block';
+  }
+
+  window.onload = () => {
+    loadLocalData();
+    fetchCommunityData(); 
+  };
+</script>
+</body>
+</html>
